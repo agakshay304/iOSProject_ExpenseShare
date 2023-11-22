@@ -1,0 +1,3 @@
+# iOSProject_ExpenseShare
+
+ExpenseShare innovatively addresses the absence of structured Model-View-Controller (MVC) architecture in many similar apps. It offers a user-friendly platform for expense tracking, group management, and automated calculations, resolving unknown complexities. The app's unique features, including graphical expense representation and real-time currency conversion, are often unavailable for free, making ExpenseShare stand out. This comprehensive solution simplifies expense- sharing, promoting financial transparency, and enhancing user experiences—ideal for diverse scenarios, from travel adventures to household budgeting.
