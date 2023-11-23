@@ -3,10 +3,14 @@ import CoreData
 
 
 struct LogFormView: View {
+    enum Currency: String, CaseIterable {
+           case usd, inr, euro, gbp, jpy, aud, cad, cny
+       }
     
     var logToEdit: ExpenseLog?
     var context: NSManagedObjectContext
     
+    @State var selectedCurrency = Currency.inr
     @State var name: String = ""
     @State var amount: Double = 0
     @State var category: Category = .utilities
@@ -25,10 +29,15 @@ struct LogFormView: View {
                 TextField("Name", text: $name)
                     .disableAutocorrection(true)
                 
-                TextField("Amount",value: $amount, formatter: Utils.numberFormatter)
-                    .keyboardType(.numbersAndPunctuation)
+                    TextField("Amount",value: $amount, formatter: Utils.numberFormatter)
+                        .keyboardType(.numbersAndPunctuation)
 
-                    
+                                Picker(selection: $selectedCurrency, label: Text("Currency")) {
+                                    ForEach(Currency.allCases, id: \.self) { currency in
+                                        Text(currency.rawValue.uppercased()).tag(currency)
+                                    }
+                                }
+                
                 Picker(selection: $category, label: Text("Category")) {
                     ForEach(Category.allCases) { category in
                         Text(category.rawValue.capitalized).tag(category)

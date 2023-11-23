@@ -9,10 +9,10 @@ struct Utils {
     }()
     
     static let numberFormatter: NumberFormatter = {
+
         let formatter = NumberFormatter()
-        formatter.isLenient = true
         formatter.numberStyle = .currency
+        formatter.currencySymbol = "₹" // Replace with the actual rupee symbol if needed
         return formatter
     }()
-    
 }
