@@ -1,6 +1,10 @@
 import SwiftUI
+import CoreData
 
 struct CategoryRowView: View {
+    @Environment(\.managedObjectContext)
+        var context: NSManagedObjectContext
+    @State var isAddFormPresented: Bool = false
     let category: Category
     let sum: Double
     
@@ -11,6 +15,14 @@ struct CategoryRowView: View {
             Spacer()
             Text(sum.formattedCurrencyText).font(.headline)
         }
+        .sheet(isPresented: $isAddFormPresented) {
+            LogFormView(context: self.context)
+        }
+    }
+
+    
+    func addTapped() {
+        isAddFormPresented = true
     }
 }
 

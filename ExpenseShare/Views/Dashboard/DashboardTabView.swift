@@ -5,7 +5,7 @@ struct DashboardTabView: View {
     
     @Environment(\.managedObjectContext)
     var context: NSManagedObjectContext
-    
+    @State var isAddFormPresented: Bool = false
     @State var totalExpenses: Double?
     @State var categoriesSum: [CategorySum]?
     

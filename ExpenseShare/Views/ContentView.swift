@@ -1,26 +1,45 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var isDarkMode = true
+    
     var body: some View {
         TabView {
-            DashboardTabView()
-                .tabItem {
-                    VStack {
-                        Text("Dashboard")
-                        Image(systemName: "chart.pie")
-                    }
-            }
-            .tag(0)
-            
             LogsTabView()
                 .tabItem {
                     VStack {
                         Text("Logs")
                         Image(systemName: "tray")
                     }
-            }
-            .tag(1)
+                }
+                .tag(0)
+            DashboardTabView()
+                .tabItem {
+                    VStack {
+                        Text("Dashboard")
+                        Image(systemName: "chart.pie")
+                    }
+                }
+                .tag(1)
         }
+        .environment(\.colorScheme, isDarkMode ? .dark : .light)
+        .overlay(
+            Button(action: {
+                withAnimation {
+                    isDarkMode.toggle()
+                }
+            }) {
+                Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
+                    .foregroundColor(.primary)
+                    .imageScale(.large)
+                    .padding()
+            }
+            .background(Color(UIColor.systemBackground))
+            .cornerRadius(15)
+            .padding()
+            .shadow(radius: 5)
+            , alignment: .bottom
+        )
     }
 }
 
@@ -29,3 +48,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
