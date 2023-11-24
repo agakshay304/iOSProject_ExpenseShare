@@ -12,7 +12,7 @@ struct Utils {
 
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencySymbol = "₹" // Replace with the actual rupee symbol if needed
+        formatter.currencySymbol = "₹"
         return formatter
     }()
 }

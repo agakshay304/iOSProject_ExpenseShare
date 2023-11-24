@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isDarkMode = true
+    @State private var isDarkMode = false
     
     var body: some View {
         TabView {

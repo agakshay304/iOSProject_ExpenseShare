@@ -7,9 +7,15 @@ struct LogFormView: View {
            case usd, inr, euro, gbp, jpy, aud, cad, cny
        }
     
+    enum friends: String, CaseIterable {
+        case Akshay, Saurabh, Rajpreet, Shubham
+    }
+    
     var logToEdit: ExpenseLog?
     var context: NSManagedObjectContext
-    
+    @State private var isAddingFriend = false
+    @State private var newFriendName = ""
+    @State var selectedFriend = friends.Akshay
     @State var selectedCurrency = Currency.inr
     @State var name: String = ""
     @State var amount: Double = 0
@@ -46,7 +52,16 @@ struct LogFormView: View {
                 DatePicker(selection: $date, displayedComponents: .date) {
                     Text("Date")
                 }
+                Section {
+                    Picker("Who Paid", selection: $selectedFriend) {
+                        ForEach(friends.allCases, id: \.self) { friend in
+                            Text(friend.rawValue).tag(friend)
+                        }
+                    }
+                }
             }
+                
+            
 
             .navigationBarItems(
                 leading: Button(action: self.onCancelTapped) { Text("Cancel")},
@@ -76,6 +91,8 @@ struct LogFormView: View {
         log.category = self.category.rawValue
         log.amount = NSDecimalNumber(value: self.amount)
         log.date = self.date
+        
+        
         
         do {
             try context.save()
