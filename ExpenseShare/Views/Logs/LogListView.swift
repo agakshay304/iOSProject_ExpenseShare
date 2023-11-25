@@ -38,6 +38,7 @@ struct LogListView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(log.nameText).font(.headline)
                             Text(log.dateText).font(.subheadline)
+                            Text("Paid By: " + log.whopaidText).font(.subheadline)
                         }
                         Spacer()
                         Text(log.amountText).font(.headline)
@@ -54,6 +55,8 @@ struct LogListView: View {
                 LogFormView(
                     logToEdit: log,
                     context: self.context,
+                    selectedFriend: friends(rawValue: log.whopaid ?? "") ?? .Akshay,
+                    selectedCurrency: Currency(rawValue: log.currency ?? "") ?? .inr,
                     name: log.name ?? "",
                     amount: log.amount?.doubleValue ?? 0,
                     category: Category(rawValue: log.category ?? "") ?? .food,

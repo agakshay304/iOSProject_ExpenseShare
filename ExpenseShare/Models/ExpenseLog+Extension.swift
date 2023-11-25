@@ -14,10 +14,19 @@ extension ExpenseLog {
     var nameText: String {
         name ?? ""
     }
-    
+    var currencyText: String {
+           currency ?? ""
+       }
+       
+       var whopaidText: String {
+           whopaid ?? ""
+       }
     var amountText: String {
-        Utils.numberFormatter.string(from: NSNumber(value: amount?.doubleValue ?? 0)) ?? ""
-    }
+          let formatter = NumberFormatter()
+          formatter.numberStyle = .currency
+          formatter.currencySymbol = Currency(rawValue: currency ?? "")?.symbol ?? ""
+          return formatter.string(from: NSNumber(value: amount?.doubleValue ?? 0)) ?? ""
+      }
     
     static func fetchAllCategoriesTotalAmountSum(context: NSManagedObjectContext, completion: @escaping ([(sum: Double, category: Category)]) -> ()) {
         let keypathAmount = NSExpression(forKeyPath: \ExpenseLog.amount)
