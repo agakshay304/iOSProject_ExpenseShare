@@ -1,22 +1,13 @@
 import SwiftUI
 import CoreData
 
-
 struct LogFormView: View {
-    enum Currency: String, CaseIterable {
-           case usd, inr, euro, gbp, jpy, aud, cad, cny
-       }
-    
-    enum friends: String, CaseIterable {
-        case Akshay, Saurabh, Rajpreet, Shubham
-    }
-    
     var logToEdit: ExpenseLog?
     var context: NSManagedObjectContext
     @State private var isAddingFriend = false
     @State private var newFriendName = ""
-    @State var selectedFriend = friends.Akshay
-    @State var selectedCurrency = Currency.inr
+    @State var selectedFriend: friends = .Akshay
+    @State var selectedCurrency: Currency = .inr
     @State var name: String = ""
     @State var amount: Double = 0
     @State var category: Category = .utilities
@@ -34,21 +25,22 @@ struct LogFormView: View {
             Form {
                 TextField("Name", text: $name)
                     .disableAutocorrection(true)
-                
-                    TextField("Amount",value: $amount, formatter: Utils.numberFormatter)
-                        .keyboardType(.numbersAndPunctuation)
 
-                                Picker(selection: $selectedCurrency, label: Text("Currency")) {
-                                    ForEach(Currency.allCases, id: \.self) { currency in
-                                        Text(currency.rawValue.uppercased()).tag(currency)
+                AmountTextField(amount: $amount, selectedCurrency: selectedCurrency)
+
+                             Picker(selection: $selectedCurrency, label: Text("Currency")) {
+                                 ForEach(Currency.allCases, id: \.self) { currency in
+                                     Text(currency.rawValue.uppercased()).tag(currency)
+                                 }
+                             }
+                             .onReceive([selectedCurrency].publisher.first()) { newCurrency in
+                                 // Not necessary to update Utils.selectedCurrency here
+                             }
+                Picker(selection: $category, label: Text("Category")) {
+                                    ForEach(Category.allCases) { category in
+                                        Text(category.rawValue.capitalized).tag(category)
                                     }
                                 }
-                
-                Picker(selection: $category, label: Text("Category")) {
-                    ForEach(Category.allCases) { category in
-                        Text(category.rawValue.capitalized).tag(category)
-                    }
-                }
                 DatePicker(selection: $date, displayedComponents: .date) {
                     Text("Date")
                 }
@@ -91,7 +83,8 @@ struct LogFormView: View {
         log.category = self.category.rawValue
         log.amount = NSDecimalNumber(value: self.amount)
         log.date = self.date
-        
+        log.currency=self.selectedCurrency.rawValue
+        log.whopaid=self.selectedFriend.rawValue
         
         
         do {

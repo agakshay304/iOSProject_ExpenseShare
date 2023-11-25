@@ -50,7 +50,7 @@ struct DashboardTabView: View {
             }
         }
         .padding(.top)
-        .onAppear(perform: fetchTotalSums)
+        .onAppear(perform: {fetchTotalSums()})
     }
     
     func fetchTotalSums() {
@@ -64,6 +64,26 @@ struct DashboardTabView: View {
             })
         }
     }
+
+
+    // Helper function to get the currency conversion factor
+    public func getConversionFactor(for currency: String) -> Double? {
+        // Implement logic to fetch or define conversion factor for the given currency
+        // Example: USD to INR conversion factor
+        let conversionFactors: [String: Double] = [
+            "usd": 75.0, // Replace with actual conversion factors
+            "inr": 1.0,
+            "euro": 85.0,
+            "gbp": 100.0,
+            "jpy": 0.70,
+            "aud": 55.0,
+            "cad": 60.0,
+            "cny": 12.0
+        ]
+        
+        return conversionFactors[currency.lowercased()]
+    }
+
 }
 
 
