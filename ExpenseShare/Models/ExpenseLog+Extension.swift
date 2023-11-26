@@ -31,87 +31,72 @@ extension ExpenseLog {
     
     
     static func fetchAllCategoriesTotalAmountSum(context: NSManagedObjectContext, completion: @escaping ([(sum: Double, category: Category)]) -> ()) {
-        let keypathAmount = NSExpression(forKeyPath: \ExpenseLog.amount)
-        let expression = NSExpression(forFunction: "sum:", arguments: [keypathAmount])
-        
-        let sumDesc = NSExpressionDescription()
-        sumDesc.expression = expression
-        sumDesc.name = "sum"
-        sumDesc.expressionResultType = .decimalAttributeType
-        
-        
+
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: ExpenseLog.entity().name ?? "ExpenseLog")
         request.returnsObjectsAsFaults = false
-        request.propertiesToGroupBy = ["category"]
-        request.propertiesToFetch = [sumDesc, "category"]
-//        request.propertiesToFetch = ["amount"]
+
+        request.propertiesToFetch = ["amount", "category", "currency"]
         request.resultType = .dictionaryResultType
-        
+
         context.perform {
             do {
                 let results = try request.execute()
                 print(results)
-                let data = results.map { (result) -> (Double, Category)? in
+
+                var categorySums: [Category: Double] = [:]
+
+                for case let resultDict as [String: Any] in results {
                     guard
-                        let resultDict = result as? [String: Any],
-                        let amount = resultDict["sum"] as? Double,
-                        let categoryKey = resultDict["category"] as? String,
-                        let category = Category(rawValue: categoryKey) else {
-                            return nil
-                    }
-                    print("HELLLO", amount,category)
-                    return (amount, category)
-                }.compactMap { $0 }
-                completion(data)
-            } catch let error as NSError {
-                print((error.localizedDescription))
-                completion([])
-            }
-        }
-        
-    }
-       
-    static func fetchAllTransactions(context: NSManagedObjectContext, completion: @escaping ([(amount: Double, currency: String)]) -> ()) {
-        let amountKeyPath = NSExpression(forKeyPath: \ExpenseLog.amount)
-        let currencyKeyPath = NSExpression(forKeyPath: \ExpenseLog.currency)
-
-        let amountExpression = NSExpression(forFunction: "sum:", arguments: [amountKeyPath])
-        let currencyExpression = NSExpression(forFunction: "first:", arguments: [currencyKeyPath])
-
-        let amountDesc = NSExpressionDescription()
-        amountDesc.expression = amountExpression
-        amountDesc.name = "amount"
-        amountDesc.expressionResultType = .decimalAttributeType
-
-        let currencyDesc = NSExpressionDescription()
-        currencyDesc.expression = currencyExpression
-        currencyDesc.name = "currency"
-        currencyDesc.expressionResultType = .stringAttributeType
-
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: ExpenseLog.entity().name ?? "ExpenseLog")
-        request.returnsObjectsAsFaults = false
-        request.propertiesToFetch = [amountDesc, currencyDesc]
-        request.resultType = .dictionaryResultType
-
-        context.perform {
-            do {
-                let results = try request.execute()
-                let data = results.map { (result) -> (Double, String)? in
-                    guard
-                        let resultDict = result as? [String: Any],
                         let amount = resultDict["amount"] as? Double,
-                        let currency = resultDict["currency"] as? String else {
-                            return nil
+                        let categoryKey = resultDict["category"] as? String,
+                        var category = Category(rawValue: categoryKey) else {
+                            continue
                     }
-                    return (amount, currency)
-                }.compactMap { $0 }
+
+                    // Convert currency to INR if not already
+                    if let currency = resultDict["currency"] as? String, currency.lowercased() != "inr" {
+                        let exchangeRate = convertToINR(amount: amount, fromCurrency: currency.lowercased())
+                        categorySums[category] = (categorySums[category] ?? 0) + (amount * exchangeRate)
+                    } else {
+                        // Update category sum
+                        categorySums[category] = (categorySums[category] ?? 0) + amount
+                    }
+                }
+
+                let data = categorySums.map { (category, sum) in
+                    return (sum, category)
+                }
+
                 completion(data)
             } catch let error as NSError {
-                print((error.localizedDescription))
+                print(error.localizedDescription)
                 completion([])
             }
         }
     }
+
+    // Function to convert currencies to INR
+    private static func convertToINR(amount: Double, fromCurrency: String) -> Double {
+        let exchangeRates: [String: Double] = [
+            "usd": 75.0,  // Replace with actual exchange rates
+            "euro": 85.0,
+            "gbp": 100.0,
+            "jpy": 0.70,
+            "aud": 55.0,
+            "cad": 60.0,
+            "cny": 11.0
+        ]
+
+        guard let exchangeRate = exchangeRates[fromCurrency] else {
+            // If the currency is not in the list, return 1 as a default (no conversion)
+            return 1.0
+        }
+
+        return exchangeRate
+    }
+
+
+
 
     static func predicate(with categories: [Category], searchText: String) -> NSPredicate? {
         var predicates = [NSPredicate]()
