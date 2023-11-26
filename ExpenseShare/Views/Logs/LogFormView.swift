@@ -6,13 +6,13 @@ struct LogFormView: View {
     var context: NSManagedObjectContext
     @State private var isAddingFriend = false
     @State private var newFriendName = ""
-    @State var selectedFriend: friends = .Akshay
     @State var selectedCurrency: Currency = .inr
     @State var name: String = ""
     @State var amount: Double = 0
     @State var category: Category = .utilities
     @State var date: Date = Date()
-    
+    @State var Friend: String = ""
+    @State var isPaidByMe: Bool = false
     @Environment(\.presentationMode)
     var presentationMode
     
@@ -23,44 +23,62 @@ struct LogFormView: View {
     var body: some View {
         NavigationView {
             Form {
-                TextField("Name", text: $name)
-                    .disableAutocorrection(true)
-
-                AmountTextField(amount: $amount, selectedCurrency: selectedCurrency)
-
-                             Picker(selection: $selectedCurrency, label: Text("Currency")) {
-                                 ForEach(Currency.allCases, id: \.self) { currency in
-                                     Text(currency.rawValue.uppercased()).tag(currency)
-                                 }
-                             }
-                             .onReceive([selectedCurrency].publisher.first()) { newCurrency in
-                                 // Not necessary to update Utils.selectedCurrency here
-                             }
-                Picker(selection: $category, label: Text("Category")) {
-                                    ForEach(Category.allCases) { category in
-                                        Text(category.rawValue.capitalized).tag(category)
-                                    }
-                                }
-                DatePicker(selection: $date, displayedComponents: .date) {
-                    Text("Date")
-                }
-                Section {
-                    Picker("Who Paid", selection: $selectedFriend) {
-                        ForEach(friends.allCases, id: \.self) { friend in
-                            Text(friend.rawValue).tag(friend)
+                Section(header: Text(logToEdit == nil ? "Create Expense Log" : "Edit Expense Log")) {
+                    TextField("Name", text: $name)
+                        .disableAutocorrection(true)
+                    
+                    AmountTextField(amount: $amount, selectedCurrency: selectedCurrency)
+                    
+                    Picker(selection: $selectedCurrency, label: Text("Currency")) {
+                        ForEach(Currency.allCases, id: \.self) { currency in
+                            Text(currency.rawValue.uppercased()).tag(currency)
                         }
+                    }
+                    .onReceive([selectedCurrency].publisher.first()) { newCurrency in
+                    }
+                    
+                    Picker(selection: $category, label: Text("Category")) {
+                        ForEach(Category.allCases) { category in
+                            Text(category.rawValue.capitalized).tag(category)
+                        }
+                    }
+                    
+                    DatePicker(selection: $date, displayedComponents: .date) {
+                        Text("Date")
+                    }
+                }
+                    Section {
+                        Toggle("Paid by Me", isOn: $isPaidByMe)
+                            .accentColor(.blue)
+                        
+                        HStack {
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.blue)
+                            
+                            TextField("Who Paid", text: $Friend)
+                                .disableAutocorrection(true)
+                                .disabled(isPaidByMe)
+                        }
+                    }
+
+                Section {
+                    VStack {
+                        Button(action: onSaveTapped) {
+                            Text("Save")
+                        }
+                        .foregroundColor(.blue)
+                        Divider()
+                        Button(action: onCancelTapped) {
+                            Text("Cancel")
+                        }
+                        .foregroundColor(.red)
                     }
                 }
             }
-                
-            
+            .navigationBarHidden(true)
 
-            .navigationBarItems(
-                leading: Button(action: self.onCancelTapped) { Text("Cancel")},
-                trailing: Button(action: self.onSaveTapped) { Text("Save")}
-            ).navigationBarTitle(title)
-            
         }
+
         
     }
     
@@ -84,10 +102,11 @@ struct LogFormView: View {
         log.amount = NSDecimalNumber(value: self.amount)
         log.date = self.date
         log.currency=self.selectedCurrency.rawValue
-        log.whopaid=self.selectedFriend.rawValue
-        
-//        print(log.currency)
-//        print(log.whopaid)
+        if isPaidByMe {
+               log.whopaid = "Me"
+           } else {
+               log.whopaid = self.Friend
+        }
         
         
         do {

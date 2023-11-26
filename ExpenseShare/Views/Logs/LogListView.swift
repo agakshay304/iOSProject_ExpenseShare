@@ -55,12 +55,12 @@ struct LogListView: View {
                 LogFormView(
                     logToEdit: log,
                     context: self.context,
-                    selectedFriend: friends(rawValue: log.whopaid ?? "") ?? .Akshay,
                     selectedCurrency: Currency(rawValue: log.currency ?? "") ?? .inr,
                     name: log.name ?? "",
                     amount: log.amount?.doubleValue ?? 0,
                     category: Category(rawValue: log.category ?? "") ?? .food,
-                    date: log.date ?? Date()
+                    date: log.date ?? Date(),
+                    Friend: log.whopaid ?? ""
                 )
             }
         }

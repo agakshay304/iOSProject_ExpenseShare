@@ -4,15 +4,14 @@ import CoreData
 struct LogsTabView: View {
     
     @Environment(\.managedObjectContext)
-        var context: NSManagedObjectContext
+    var context: NSManagedObjectContext
     
-    @State private var searchText : String = ""
+    @State private var searchText: String = ""
     @State private var searchBarHeight: CGFloat = 0
     @State private var sortType = SortType.date
     @State private var sortOrder = SortOrder.descending
     
     @State var selectedCategories: Set<Category> = Set()
-    @State var isAddFormPresented: Bool = false
     
     var body: some View {
         NavigationView {
@@ -25,18 +24,14 @@ struct LogsTabView: View {
                 LogListView(predicate: ExpenseLog.predicate(with: Array(selectedCategories), searchText: searchText), sortDescriptor: ExpenseLogSort(sortType: sortType, sortOrder: sortOrder).sortDescriptor)
             }
             .padding(.bottom, searchBarHeight)
-            .sheet(isPresented: $isAddFormPresented) {
-                LogFormView(context: self.context)
-            }
-            .navigationBarItems(trailing: Button(action: addTapped) { Text("Add") })
+            .navigationBarItems(trailing: NavigationLink(destination: LogFormView(context: context)) {
+                Text("Add")
+            })
             .navigationBarTitle("Expense Logs", displayMode: .inline)
         }
     }
-    
-    func addTapped() {
-        isAddFormPresented = true
-    }
 }
+
 
 struct LogsTabView_Previews: PreviewProvider {
     static var previews: some View {
