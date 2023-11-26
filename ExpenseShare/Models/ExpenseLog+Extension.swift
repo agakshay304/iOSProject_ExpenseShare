@@ -59,7 +59,7 @@ extension ExpenseLog {
                         let category = Category(rawValue: categoryKey) else {
                             return nil
                     }
-//                    print("HELLLO", amount,category)
+                    print("HELLLO", amount,category)
                     return (amount, category)
                 }.compactMap { $0 }
                 completion(data)
