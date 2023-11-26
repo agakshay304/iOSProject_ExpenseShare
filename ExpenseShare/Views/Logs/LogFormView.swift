@@ -86,7 +86,7 @@ struct LogFormView: View {
         log.currency=self.selectedCurrency.rawValue
         log.whopaid=self.selectedFriend.rawValue
         
-        print(log.currency)
+//        print(log.currency)
 //        print(log.whopaid)
         
         
